@@ -11,8 +11,8 @@ The U.S. Food and Drug Administration ( FDA ) releases weekly updates on the sta
 
 **USAGE**
   
-    $ ./make_fda.sh [-d <download>]
+    $ ./make_fda.sh [-d]
 
 **OPTIONS**
     
-    -d *download ZIP file of Drugs@FDA table data*
+    -d  Download ZIP file of Drugs@FDA table data
