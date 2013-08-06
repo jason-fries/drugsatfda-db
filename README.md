@@ -1,7 +1,7 @@
-drugsatfda-db
+Drugs@FDA: Data Import Utility
 =============
 
-A shell script for creating a sqlite database from FDA Approved Drugs ( Drugs@FDA ) snapshot data, available at: <http://www.fda.gov/Drugs/InformationOnDrugs/ucm079750.htm> .
+drugsatfda-db is a shell script for creating a sqlite database from FDA Approved Drugs ( Drugs@FDA ) snapshot data, available at: <http://www.fda.gov/Drugs/InformationOnDrugs/ucm079750.htm> .
 
 ### Overview
 
@@ -9,6 +9,10 @@ The U.S. Food and Drug Administration ( FDA ) releases weekly updates on the sta
 
 ### Script Usage
 
-__USAGE__: make_fda.sh
+**USAGE**
+  
+    $ ./make_fda.sh [-d <download>]
 
-__OPTIONS__: -d *download ZIP file of Drugs@FDA table data*
+**OPTIONS**
+    
+    -d *download ZIP file of Drugs@FDA table data*
