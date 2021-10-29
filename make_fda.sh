@@ -9,7 +9,7 @@ DBNAME="drugsatfda.db"
 
 # Use drugsatfda.zip snapshot from
 # https://www.fda.gov/media/89850/download
-if [ "$1" == "-d" ]
+if [ "$1" = "-d" ]
 then
   curl https://www.fda.gov/media/89850/download > snapshot.zip
   unzip snapshot.zip -d drugsatfda
