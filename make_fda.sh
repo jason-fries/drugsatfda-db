@@ -1,20 +1,17 @@
 #!/bin/sh
-# 
-# Create Drugs@FDA sqlite3 Database (OSX/Linux)
 #
-# @author	Jason Alan Fries 
-# @email 	jason-fries [at] uiowa.edu
-# 
+# Create Drugs@FDA sqlite3 Database (MacOS/Linux)
+#
 # USAGE: make_fda.sh
 # OPTIONS: -d Download Drugs@FDA database snapshot
 #
 DBNAME="drugsatfda.db"
 
 # Use drugsatfda.zip snapshot from
-# http://www.fda.gov/downloads/Drugs/InformationOnDrugs/UCM054599.zip
-if [ "$1" == "-d" ]
+# https://www.fda.gov/media/89850/download
+if [ "$1" = "-d" ]
 then
-  curl http://www.fda.gov/downloads/Drugs/InformationOnDrugs/UCM054599.zip > snapshot.zip
+  curl https://www.fda.gov/media/89850/download > snapshot.zip
   unzip snapshot.zip -d drugsatfda
 fi
 
@@ -26,35 +23,37 @@ fi
 
 # prepare CSV data by stripping field header row (to prevent datatype import errors)
 mkdir tmp
-tail +2 drugsatfda/AppDoc.txt > tmp/AppDoc.txt
-tail +2 drugsatfda/AppDocType_Lookup.txt > tmp/AppDocType_Lookup.txt
-tail +2 drugsatfda/application.txt > tmp/application.txt
-tail +2 drugsatfda/ChemTypeLookup.txt > tmp/ChemTypeLookup.txt
-tail +2 drugsatfda/DocType_lookup.txt > tmp/DocType_lookup.txt
-tail +2 drugsatfda/Product_tecode.txt > tmp/Product_tecode.txt
-tail +2 drugsatfda/Product.txt > tmp/Product.txt
-tail +2 drugsatfda/RegActionDate.txt > tmp/RegActionDate.txt
-tail +2 drugsatfda/ReviewClass_Lookup.txt > tmp/ReviewClass_Lookup.txt
+tail +2 drugsatfda/ActionTypes_Lookup.txt > tmp/ActionTypes_Lookup.txt
+tail +2 drugsatfda/ApplicationDocs.txt > tmp/ApplicationDocs.txt
+tail +2 drugsatfda/Applications.txt > tmp/Applications.txt
+tail +2 drugsatfda/ApplicationsDocsType_Lookup.txt > tmp/ApplicationsDocsType_Lookup.txt
+tail +2 drugsatfda/MarketingStatus.txt > tmp/MarketingStatus.txt
+tail +2 drugsatfda/MarketingStatus_Lookup.txt > tmp/MarketingStatus_Lookup.txt
+tail +2 drugsatfda/Products.txt > tmp/Products.txt
+tail +2 drugsatfda/SubmissionClass_Lookup.txt > tmp/SubmissionClass_Lookup.txt
+tail +2 drugsatfda/SubmissionPropertyType.txt > tmp/SubmissionPropertyType.txt
+tail +2 drugsatfda/Submissions.txt > tmp/Submissions.txt
+tail +2 drugsatfda/TE.txt > tmp/TE.txt
 
 # create database
 sqlite3 $DBNAME < fda.sql
 
 # import snapshot for each table
-sqlite3 -separator "	" "$DBNAME" ".import tmp/AppDoc.txt AppDoc"
-sqlite3 -separator "	" "$DBNAME" ".import tmp/AppDocType_Lookup.txt AppDocType_Lookup"
-sqlite3 -separator "	" "$DBNAME" ".import tmp/application.txt Application"
-sqlite3 -separator "	" "$DBNAME" ".import tmp/ChemTypeLookup.txt ChemicalType_Lookup"
-sqlite3 -separator "	" "$DBNAME" ".import tmp/DocType_lookup.txt DocType_Lookup"
-sqlite3 -separator "	" "$DBNAME" ".import tmp/Product.txt Product"
-sqlite3 -separator "	" "$DBNAME" ".import tmp/Product_tecode.txt Product_TECode"
-sqlite3 -separator "	" "$DBNAME" ".import tmp/ReviewClass_Lookup.txt ReviewClass_Lookup"
-sqlite3 -separator "	" "$DBNAME" ".import tmp/RegActionDate.txt RegActionDate"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/ActionTypes_Lookup.txt ActionTypes_Lookup"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/ApplicationDocs.txt ApplicationDocs"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/Applications.txt Applications"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/ApplicationsDocsType_Lookup.txt ApplicationsDocsType_Lookup"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/MarketingStatus.txt MarketingStatus"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/MarketingStatus_Lookup.txt MarketingStatus_Lookup"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/Products.txt Products"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/SubmissionClass_Lookup.txt SubmissionClass_Lookup"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/SubmissionPropertyType.txt SubmissionPropertyType"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/Submissions.txt Submissions"
+sqlite3 -separator "	" "$DBNAME" ".import tmp/TE.txt TE"
+
 
 # remove tmp files
-rm -r -f tmp
+rm -rf tmp
 
 echo "Created $DBNAME"
 echo "TO ACCESS DATABASE, TYPE -> \"sqlite3 $DBNAME\""
-
-
-

@@ -1,98 +1,132 @@
 -- *******************************************************************
+--
 -- Initialize empty Drugs@FDA database, using table format defined at:
--- http://www.fda.gov/Drugs/InformationOnDrugs/ucm079750.htm
--- @retrieved 2013-2-5
--- @author Jason Alan Fries
--- @email jason-fries [at] uiowa.edu
+-- https://www.fda.gov/drugs/drug-approvals-and-databases/drugsfda-data-files
+--
 -- *******************************************************************
 
--- Application Documents (AppDoc): 
--- Document addresses or URLs to letters, labels, reviews, 
+-- Application Documents (ApplicationDocs):
+-- Document addresses or URLs to letters, labels, reviews,
 -- Consumer Information Sheets, FDA Talk Papers, and other types.
+CREATE TABLE ApplicationDocs (
+    ApplicationDocsID INTEGER NOT NULL,
+    ApplicationDocsTypeID INTEGER NOT NULL,
+    ApplNo VARCHAR(6) NOT NULL,
+    SubmissionType VARCHAR(10) NOT NULL,
+    SubmissionNo INTEGER NOT NULL,
+    ApplicationDocsTitle VARCHAR(100) NULL,
+    ApplicationDocsURL VARCHAR(200) NULL,
+    ApplicationDocsDate DATE NULL,
+    PRIMARY KEY(ApplicationDocsID)
+);
 
-CREATE TABLE AppDoc (
-		AppDocID INTEGER NOT NULL,
-		ApplNo VARCHAR(6) NOT NULL,
-		SeqNo VARCHAR(4) NOT NULL,
-		DocType VARCHAR(50) NOT NULL,
-		DocTitle VARCHAR(100),
-		DocURL VARCHAR(200),
-		DocDate DATE,
-		ActionType VARCHAR(10) NOT NULL,
-		DuplicateCounter INTEGER,
-		PRIMARY KEY(AppDocID) );
-		
--- Application Document Type Lookup (AppDocType_Lookup): 
+-- Application Document Type Lookup (ApplicationsDocsType_Lookup):
 -- Type of document that is linked, which relates to the AppDoc table.
-CREATE TABLE AppDocType_Lookup (
-		AppDocType VARCHAR(50) PRIMARY KEY,
-		SortOrder INTEGER);
+CREATE TABLE ApplicationsDocsType_Lookup (
+    ApplicationDocsType_Lookup_ID INTEGER NOT NULL,
+    ApplicationDocsType_Lookup_Description VARCHAR(200) NOT NULL,
+    PRIMARY KEY(ApplicationDocsType_Lookup_ID)
+);
 
--- Application (Application): 
+-- Applications (Applications):
 -- Application number and sponsor name.
-CREATE TABLE Application (
-		ApplNo VARCHAR(6) PRIMARY KEY,
-		ApplType VARCHAR(5),
-		SponsorApplicant VARCHAR(50) NOT NULL,
-		MostRecentLabelAvailableFlag BIT NOT NULL,
-		CurrentPatentFlag BIT NOT NULL,
-		ActionType VARCHAR(10) NOT NULL,
-		Chemical_Type VARCHAR(3),
-		Therapeutic_Potential VARCHAR(2),
-		Orphan_Code VARCHAR(1) );
+CREATE TABLE Applications (
+    ApplNo VARCHAR(6) NOT NULL,
+    ApplType VARCHAR(5) NOT NULL,
+    ApplPublicNotes TEXT NULL,
+    SponsorName VARCHAR(500) NULL
+);
 
--- Document Type Lookup (DocType_Lookup): 
--- Supplement type code and description to the application number.
-CREATE TABLE DocType_Lookup (
-		DocType VARCHAR(4) PRIMARY KEY,
-		DocTypeDesc VARCHAR(50) );
-											
--- Product (Product): 
--- This table contains the products included in each application. 
+-- Products (Products):
+-- This table contains the products included in each application.
 -- Includes form, dosage, and route.
-CREATE TABLE Product (
-		ApplNo VARCHAR(6) NOT NULL,
-		ProductNo VARCHAR(3) NOT NULL,
-		Form VARCHAR(255) NOT NULL,
-		Dosage VARCHAR(240) NOT NULL,
-		ProductMktStatus INTEGER NOT NULL,
-		TECode VARCHAR(100),
-		ReferenceDrug BIT NOT NULL,
-		Drugname VARCHAR(125),
-		Activeingred VARCHAR(255),
-		PRIMARY KEY(ApplNo, ProductNo, Form, Dosage, ProductMktStatus) ); 
+CREATE TABLE Products (
+    ApplNo VARCHAR(6) NOT NULL,
+    ProductNo VARCHAR(6) NOT NULL,
+    Form VARCHAR(255) NULL,
+    Strength VARCHAR(240) NULL,
+    ReferenceDrug INTEGER NULL,
+    DrugName VARCHAR(125) NULL,
+    ActiveIngredient VARCHAR(255) NULL,
+    ReferenceStandard INTEGER NULL
+);
 
--- Product_TECode: Therapeutic Equivalence Code for Products.
-CREATE TABLE Product_TECode (
-		ApplNo VARCHAR(6) NOT NULL,
-		ProductNo VARCHAR(3) NOT NULL,
-		TECode VARCHAR(50) NOT NULL,
-		TESequence INTEGER NOT NULL,
-		ProdMktStatus INTEGER NOT NULL,
-		PRIMARY KEY(ApplNo, ProductNo, TESequence, ProdMktStatus) );
+-- TE: Therapeutic Equivalence Code for Products.
+CREATE TABLE TE (
+    ApplNo VARCHAR(6) NOT NULL,
+    ProductNo VARCHAR(3) NOT NULL,
+    MarketingStatusID INTEGER NOT NULL,
+    TECode VARCHAR(100) NOT NULL
+);
 
--- Supplements (RegActionDate): 
--- Approval history for each application. Includes supplement 
--- number and dates of approval.
-CREATE TABLE RegActionDate (
-		ApplNo VARCHAR(6) NOT NULL,
-		ActionType VARCHAR(10) NOT NULL,
-		InDocTypeSeqNo VARCHAR(4) NOT NULL,
-		DuplicateCounter INTEGER NOT NULL,
-		ActionDate DATE,
-		DocType VARCHAR(4),
-		PRIMARY KEY(ApplNo, InDocTypeSeqNo, DuplicateCounter) );
+-- Further tables and view:
+CREATE TABLE ActionTypes_Lookup (
+    ActionTypes_LookupID INTEGER NOT NULL,
+    ActionTypes_LookupDescription VARCHAR(100) NOT NULL,
+    SupplCategoryLevel1Code VARCHAR(100) NULL,
+    SupplCategoryLevel2Code VARCHAR(100) NULL,
+    PRIMARY KEY(ActionTypes_LookupID)
+);
 
--- ChemicalType_Lookup
-CREATE TABLE ChemicalType_Lookup (
-		ChemicalTypeID INTEGER PRIMARY KEY,
-		ChemicalTypeCode VARCHAR(3) NOT NULL,
-		ChemicalTypeDescription VARCHAR(200) NOT NULL);
+CREATE TABLE MarketingStatus (
+    MarketingStatusID INTEGER NOT NULL,
+    ApplNo VARCHAR(6) NOT NULL,
+    ProductNo VARCHAR(3) NOT NULL
+);
 
--- ReviewClass_Lookup
-CREATE TABLE ReviewClass_Lookup (
-		ReviewClassID INTEGER NOT NULL,
-		ReviewCode VARCHAR(1) NOT NULL,
-		LongDescritption VARCHAR(100),
-		ShortDescription VARCHAR(100) NOT NULL,
-		PRIMARY KEY(ReviewClassID) );
+CREATE TABLE MarketingStatus_Lookup (
+    MarketingStatusID INTEGER NOT NULL,
+    MarketingStatusDescription VARCHAR(200) NOT NULL,
+    PRIMARY KEY(MarketingStatusID)
+);
+
+CREATE TABLE SubmissionClass_Lookup (
+    SubmissionClassCodeID INTEGER NOT NULL,
+    SubmissionClassCode VARCHAR(50) NOT NULL,
+    SubmissionClassCodeDescription VARCHAR(500) NULL,
+    PRIMARY KEY(SubmissionClassCodeID)
+);
+
+CREATE TABLE SubmissionPropertyType (
+    ApplNo VARCHAR(6) NOT NULL,
+    SubmissionType VARCHAR(10) NOT NULL,
+    SubmissionNo INTEGER NOT NULL,
+    SubmissionPropertyTypeCode VARCHAR(50) NOT NULL,
+    SubmissionPropertyTypeID INTEGER NOT NULL
+);
+
+CREATE TABLE Submissions (
+    ApplNo VARCHAR(6) NOT NULL,
+    SubmissionClassCodeID INTEGER NULL,
+    SubmissionType VARCHAR(10) NOT NULL,
+    SubmissionNo INTEGER NOT NULL,
+    SubmissionStatus VARCHAR(2) NULL,
+    SubmissionStatusDate DATE NULL,
+    SubmissionsPublicNotes TEXT NULL,
+    ReviewPriority VARCHAR(20)
+);
+
+CREATE VIEW v_DrugApplications AS 
+SELECT a.ApplNo,
+    a.ApplType,
+    a.SponsorName,
+    s.SubmissionNo,
+    s.SubmissionType,
+    s.SubmissionStatus,
+    s.SubmissionStatusDate,
+    s.ReviewPriority,
+    p.ProductNo,
+    p.DrugName,
+    p.ActiveIngredient,
+    p.Form,
+    p.Strength,
+    ml.MarketingStatusDescription
+FROM Applications a
+JOIN Submissions s ON (a.ApplNo = s.ApplNo)
+JOIN SubmissionClass_Lookup l ON (l.SubmissionClassCodeID = s.SubmissionClassCodeID)
+JOIN Products p ON (p.ApplNo = a.ApplNo)
+JOIN MarketingStatus m ON (m.ApplNo = p.ApplNo AND m.ProductNo = p.ProductNo)
+JOIN MarketingStatus_Lookup ml ON (m.MarketingStatusID = ml.MarketingStatusID)
+ORDER BY a.ApplNo,
+    s.SubmissionNo,
+    s.SubmissionStatusDate;
